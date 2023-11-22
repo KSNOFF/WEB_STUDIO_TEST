@@ -1,7 +1,8 @@
 import 'dart:async';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+
 import 'main.dart';
 
 class LocationLogic {
@@ -30,8 +31,6 @@ class LocationLogic {
       'Геолокация',
       importance: Importance.max,
       priority: Priority.high,
-      playSound: false,
-      enableVibration: false,
       onlyAlertOnce: true,
       ongoing: true,
       autoCancel: false,
@@ -49,30 +48,9 @@ class LocationLogic {
     );
   }
 
-  //Функция обновления стартового уведомления
+  //Функция обновления уведомления
   Future<void> updateNotification(String title, String body) async {
-    var androidPlatformChannelSpecifics = const AndroidNotificationDetails(
-      'your_channel_id',
-      'Геолокация',
-      importance: Importance.max,
-      priority: Priority.high,
-      playSound: false,
-      enableVibration: false,
-      onlyAlertOnce: true,
-      ongoing: true,
-      autoCancel: false,
-    );
-
-    var platformChannelSpecifics =
-        NotificationDetails(android: androidPlatformChannelSpecifics);
-
-    await flutterLocalNotificationsPlugin.show(
-      notificationId,
-      title,
-      body,
-      platformChannelSpecifics,
-      payload: 'item x',
-    );
+    await showNotification(title, body);
   }
 
   //Функция закрытия уведомления
@@ -85,22 +63,24 @@ class LocationLogic {
     Position position = await geolocator.getCurrentPosition(
       desiredAccuracy: LocationAccuracy.best,
     );
-    locationString =
-        'Широта: ${position.latitude}, Долгота: ${position.longitude}';
-    updateNotification('Текущие координаты:', locationString);
-    await Future.delayed(const Duration(seconds: 4));
+    updateNotification('Текущие координаты:',
+        'Широта: ${position.latitude}, Долгота: ${position.longitude}');
     if (switchValue == true) {
+      await Future.delayed(const Duration(seconds: 4));
       getCurrentLocation();
     } else {
       cancelNotification();
     }
   }
 
-  //Функция запроса разрешения на использование геолокации
+//Функция запроса разрешения на использование геолокации
   Future<void> requestLocationPermission() async {
-    var status = await Permission.location.request();
-    if (status.isDenied) {
-      print("Location permission is denied");
+    var status = await Permission.location.status;
+
+    if (status.isGranted) {
+      print("Location Permission is already granted or denied");
+    } else {
+      await Permission.location.request();
     }
   }
 }

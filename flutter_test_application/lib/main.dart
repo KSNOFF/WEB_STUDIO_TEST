@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:vector_graphics/vector_graphics.dart';
 import 'package:flutter_switch/flutter_switch.dart';
+
 import 'location_logic.dart';
 
 //Глобальная переменная
@@ -28,37 +28,30 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   final LocationLogic locationLogic = LocationLogic();
-  //Вызов функций при запуске приложения
+
   @override
   void initState() {
     super.initState();
-    locationLogic.initNotifications(); //Инициализация уведомления
-    locationLogic
-        .requestLocationPermission(); //Функция запроса разрешения на использование геолокации
+    locationLogic.initNotifications();
+    locationLogic.requestLocationPermission();
   }
 
-  //Функция для обновления состояния переключателя
-  void _toggleSwitch(bool value) {
-    setState(() {
-      switchValue = value;
-      if (switchValue == false) {
-        locationLogic.cancelNotification();
-      } else {
-        locationLogic.showNotification(
-            'Текущие координаты:', "Определяем местоположение....");
-        locationLogic.getCurrentLocation();
-      }
-    });
-  }
-
-  //Функция для обновления состояния переключателя при нажатии плашки(кнопки)
+  ///Кнопка
   void _toggleSwitchState() {
+    _updateSwitchState(!switchValue);
+  }
+
+  ///Переключатель
+  void _toggleSwitch(bool value) {
+    _updateSwitchState(!switchValue);
+  }
+
+  void _updateSwitchState(bool newValue) {
     setState(() {
-      if (switchValue == true) {
-        switchValue = false;
+      switchValue = newValue;
+      if (!switchValue) {
         locationLogic.cancelNotification();
       } else {
-        switchValue = true;
         locationLogic.showNotification(
             'Текущие координаты:', "Определяем местоположение....");
         locationLogic.getCurrentLocation();
